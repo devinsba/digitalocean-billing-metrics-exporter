@@ -1,1 +1,1 @@
-web: digitalocean-billing-metrics-exporter
+worker: digitalocean-billing-metrics-exporter
