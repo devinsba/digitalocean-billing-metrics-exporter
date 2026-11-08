@@ -6,7 +6,10 @@ authors = [
     { name = "Brian Devins", email = "badevins@gmail.com" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "opentelemetry-exporter-otlp-proto-http>=1.45.2",
+    "opentelemetry-sdk>=1.45.2",
+]
 
 [project.scripts]
 digitalocean-billing-metrics-exporter = "digitalocean_billing_metrics_exporter:main"
