@@ -15,8 +15,11 @@ Every `OTEL_METRIC_EXPORT_INTERVAL` ms (default 300000) it pushes over OTLP/HTTP
 
 - `digitalocean.billing.balance` (USD), attribute `kind` = `month_to_date_balance` |
   `account_balance` | `month_to_date_usage`, from `GET /v2/customers/my/balance`.
-- `digitalocean.billing.product.charges` (USD), attribute `product` (e.g. `Droplets`), from
-  `GET /v2/customers/my/invoices/preview/summary` (the current period's daily invoice preview).
+- `digitalocean.billing.resource.charges` (USD), attributes `sku`, `region`, `description`,
+  `group_description`: month-to-date estimated charges per resource, summed from
+  `GET /v2/billing/do:team:<uuid>/insights/<1st of month>/<today>` (nightly invoice items, so
+  available mid-month; a resource shows up the day after its first usage). The team is the one
+  that owns `DO_TOKEN`.
 
 If an API call fails, that metric has no points for the interval (alert on absence).
 
