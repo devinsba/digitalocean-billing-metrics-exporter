@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 import pytest
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import InMemoryMetricReader
+from structlog.testing import capture_logs
 
 from digitalocean_billing_metrics_exporter import main, register
 
@@ -72,11 +73,13 @@ def collect(get) -> dict:
     return out
 
 
-def test_metrics(caplog):
-    caplog.set_level("INFO")
-    out = collect(get)
-    assert "Balance: month-to-date usage $11.21" in caplog.text
-    assert "Resource charges: 2 resources, $4.29 month to date" in caplog.text
+def test_metrics():
+    with capture_logs() as logs:
+        out = collect(get)
+    assert {"event": "balance", "month_to_date_usage": "11.21", "log_level": "info"} in logs
+    charges = next(e for e in logs if e["event"] == "resource_charges")
+    assert charges["resources"] == 2
+    assert round(charges["month_to_date"], 2) == 4.29
     assert out["digitalocean.billing.balance"] == sorted(
         [
             ({"kind": "month_to_date_balance"}, 23.44),
