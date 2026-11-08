@@ -39,6 +39,7 @@ def register(provider: MeterProvider, get: Callable[[str], dict]) -> None:
     # Callbacks run on every export interval; on API error the SDK logs it and the series go absent.
     def balance(_: CallbackOptions) -> Iterable[Observation]:
         body = get("/customers/my/balance")
+        log.info("Balance: month-to-date usage $%s", body["month_to_date_usage"])
         return [Observation(float(body[k]), {"kind": k}) for k in KINDS]
 
     def resources(_: CallbackOptions) -> Iterable[Observation]:
@@ -55,6 +56,9 @@ def register(provider: MeterProvider, get: Callable[[str], dict]) -> None:
             for p in body.get("data_points") or []:
                 totals[tuple(p.get(k) or "" for k in RESOURCE_ATTRS)] += float(p["total_amount"])
             page += 1
+        log.info(
+            "Resource charges: %d resources, $%.2f month to date", len(totals), sum(totals.values())
+        )
         return [
             Observation(v, dict(zip(RESOURCE_ATTRS, k, strict=True))) for k, v in totals.items()
         ]

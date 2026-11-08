@@ -72,8 +72,11 @@ def collect(get) -> dict:
     return out
 
 
-def test_metrics():
+def test_metrics(caplog):
+    caplog.set_level("INFO")
     out = collect(get)
+    assert "Balance: month-to-date usage $11.21" in caplog.text
+    assert "Resource charges: 2 resources, $4.29 month to date" in caplog.text
     assert out["digitalocean.billing.balance"] == sorted(
         [
             ({"kind": "month_to_date_balance"}, 23.44),
